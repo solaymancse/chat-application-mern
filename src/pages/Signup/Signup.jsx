@@ -1,12 +1,14 @@
 import { Row, Col, Container } from "react-bootstrap";
-import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
 import img from "../../assets/signup.png";
 import bot from "../../assets/bot.png";
-import { Link } from "react-router-dom";
-import { Img, Profile, Upload } from "./SignupElements";
+import { Link, useNavigate } from "react-router-dom";
+import { ButtonDiv, Img, Profile, Upload } from "./SignupElements";
 import { AiOutlineUpload } from "react-icons/ai";
 import { useState } from "react";
+import { useSignupUserMutation } from "../../services/appApi";
+import "./signup.css";
+
 
 export const Signup = () => {
   const [user, setUser] = useState({
@@ -15,49 +17,60 @@ export const Signup = () => {
     password: "",
   });
   const { name, email, password } = user;
-
+  const [signupUser, { isLoading, error }] = useSignupUserMutation();
+  const navigate = useNavigate();
   // image upload states
   const [image, setImage] = useState(null);
   const [uploadingImage, setUploadingImage] = useState(false);
   const [imagePreview, setImagePreview] = useState(null);
 
-  const validateImg = (e)=> {
+  const validateImg = (e) => {
     const file = e.target.files[0];
-    if(file.size >= 1048576){
+    if (file.size >= 1048576) {
       return alert("Max file size ids 1MB.");
-    }else{
+    } else {
       setImage(file);
       setImagePreview(URL.createObjectURL(file));
     }
-  }
+  };
   const handleChange = (e) => {
     setUser((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
-  const uploadImage = async ()=> {
+  const uploadImage = async () => {
     const data = new FormData();
-    data.append('file',image);
-    data.append('upload_preset','hruf1ncm');
+    data.append("file", image);
+    data.append("upload_preset", "hruf1ncm");
 
-    try{
+    try {
       setUploadingImage(true);
-      let res = await fetch("https://api.cloudinary.com/v1_1/dabhwcdyv/image/upload",{
-        method:"post",
-        body: data,
-      })
+      let res = await fetch(
+        "https://api.cloudinary.com/v1_1/dabhwcdyv/image/upload",
+        {
+          method: "post",
+          body: data,
+        }
+      );
       const urlData = await res.json();
       setUploadingImage(false);
       return urlData.url;
-    }catch(err){
+    } catch (err) {
       setUploadingImage(false);
       console.log(err);
     }
-  }
+  };
   const submitForm = async (e) => {
     e.preventDefault();
-    if(!image) return alert("Please upload your profile picture");
+    if (!image) return alert("Please upload your profile picture");
     const url = await uploadImage(image);
     console.log(url);
+
+    signupUser({ name, email, password, picture: url }).then(({ data }) => {
+      if (data) {
+        console.log(data);
+        navigate('/chat');
+      }
+    });
   };
   return (
     <Container>
@@ -120,16 +133,15 @@ export const Signup = () => {
             <Form.Group className="mb-3" controlId="formBasicCheckbox">
               <Form.Check type="checkbox" label="Check me out" />
             </Form.Group>
-            <Button
-              type="submit"
-              style={{
-                width: "100%",
-                backgroundColor: "#FF861A",
-                border: "none",
-              }}
-             
-            >Login</Button>
-  
+            <ButtonDiv>
+              <button
+                className={uploadingImage || isLoading ? "btn1" : "btn2"}
+                type="submit"
+              >
+                {uploadingImage || isLoading ? "Signing..." : "Sign Up"}
+              </button>
+            </ButtonDiv>
+
             <div className="py-4">
               <p className="text-center">
                 Already have an account ? <Link to="/login">Login</Link>

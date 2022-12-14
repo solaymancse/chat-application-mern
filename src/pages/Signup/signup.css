@@ -1,0 +1,22 @@
+.btn1 {
+        padding: 10px;
+        width: 100%;
+        color: gray;
+        font-weight: bold;
+        background-Color: #E8EDEB;
+        border: 1px solid lightgray;
+        pointer-events: none;
+}
+
+.btn2 {
+        width: 100%;
+        padding: 10px;
+        background-Color: #FF861A;
+        border: none;
+        color: #fff;
+       
+        
+}
+.buttondiv{
+        cursor: not-allowed;
+}

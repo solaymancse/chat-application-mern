@@ -1,9 +1,11 @@
+import { useState } from "react";
 import { Row, Col, Container } from "react-bootstrap";
 import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
 import img from "../../assets/login.png";
-import { Link } from "react-router-dom";
-import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { useLoginUserMutation } from "../../services/appApi";
+
 
 
 export const Login = () => {  
@@ -12,6 +14,8 @@ export const Login = () => {
     password:''
   })
 const {email, password} = user;
+const [loginUser, {isLoading, error}] = useLoginUserMutation();
+const navigate = useNavigate();
   const handleChange = (e)=> {
     setUser((prev)=> ({...prev, [e.target.name]: e.target.value}));
 
@@ -19,8 +23,15 @@ const {email, password} = user;
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    //login logic
+    loginUser({email,password}).then(({data})=>{
+      if(data){
+        // socket work
+        // navigate to the chat
+        navigate('/chat');
+      }
+    })
 
-    console.log(user);
   }
   return (
     <Container>
